@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>5S 요청 접수</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#0b0d12;--card:#121621;--muted:#99a1b3;--text:#e8ecf3;--primary:#4da3ff;--accent:#7bf1a8;--danger:#ff6b6b;--border:#1d2433}
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:linear-gradient(180deg,#0b0d12,#0e1320);color:var(--text);font-family:Inter,system-ui,Segoe UI,Roboto,Apple Color Emoji,Noto Color Emoji,EmojiOne Color,Ubuntu,Helvetica,Arial,sans-serif;}
+    .container{max-width:1100px;margin:32px auto;padding:0 16px}
+    h1{font-size:28px;margin:0 0 12px;letter-spacing:0.2px}
+    p.subtitle{margin:0 0 20px;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:1.1fr 1fr;gap:16px}
+    .card{background:rgba(255,255,255,0.04);backdrop-filter: blur(6px);border:1px solid var(--border);border-radius:16px;box-shadow: 0 10px 30px rgba(0,0,0,0.25)}
+    .card h2{font-size:18px;margin:0 0 12px}
+    .card .content{padding:18px}
+    label{display:block;font-size:12px;color:var(--muted);margin:12px 0 6px}
+    input,select,textarea{width:100%;background:#0f1422;border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:10px;outline:none}
+    textarea{min-height:96px;resize:vertical}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+    button{border:1px solid var(--border);background:linear-gradient(180deg,#1a2133,#12192a);color:var(--text);padding:10px 14px;border-radius:10px;cursor:pointer;transition:transform .06s ease,opacity .2s ease}
+    button:hover{transform:translateY(-1px)}
+    .primary{border-color:#1f3b66;background:linear-gradient(180deg,#275293,#1a2947)}
+    .danger{border-color:#5b1f1f;background:linear-gradient(180deg,#7a2a2a,#3e1a1a)}
+    .success{border-color:#1f5b3d;background:linear-gradient(180deg,#2d8a5a,#1f3f32)}
+    .badge{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border:1px solid var(--border);border-radius:999px;color:var(--muted);font-size:12px}
+    .kpis{display:flex;gap:8px;flex-wrap:wrap}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:10px;border-bottom:1px solid var(--border);vertical-align:top}
+    thead th{position:sticky;top:0;background:#0e1320;border-bottom:1px solid var(--border);z-index:1}
+    tr:hover td{background:rgba(255,255,255,0.02)}
+    .pill{padding:4px 8px;border-radius:999px;font-size:12px;border:1px solid var(--border)}
+    .pill.low{color:#9ad1ff}
+    .pill.med{color:#ffe28a}
+    .pill.high{color:#ff9aa2}
+    .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+    .toolbar input, .toolbar select{max-width:220px}
+    .muted{color:var(--muted)}
+    .nowrap{white-space:nowrap}
+    .right{margin-left:auto}
+    .small{font-size:12px}
+    .link{color:var(--primary);text-decoration:none}
+    .footer{color:var(--muted);font-size:12px;margin-top:12px}
+    @media (max-width: 980px){.grid{grid-template-columns:1fr}.row{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>5S 요청 접수 폼</h1>
+    <p class="subtitle">현장 개선 아이디어/요청을 모아 표준화하고, 진행상태를 추적하세요. (로컬 저장: 서버 없이 <strong>브라우저에 저장</strong>)</p>
+
+    <div class="grid">
+      <!-- Left: Form -->
+      <div class="card">
+        <div class="content">
+          <h2>요청 입력</h2>
+          <form id="requestForm">
+            <label>요청 제목</label>
+            <input id="title" placeholder="예) 피킹 존 바닥 라벨 재정렬" required />
+
+            <div class="row">
+              <div>
+                <label>요청자</label>
+                <input id="requester" placeholder="이름" required />
+              </div>
+              <div>
+                <label>부서 / 구역</label>
+                <input id="area" placeholder="예) DC1 · 인바운드" />
+              </div>
+            </div>
+
+            <div class="row">
+              <div>
+                <label>5S 유형</label>
+                <select id="type">
+                  <option value="정리">정리 (Seiri)</option>
+                  <option value="정돈">정돈 (Seiton)</option>
+                  <option value="청소">청소 (Seiso)</option>
+                  <option value="청결">청결 (Seiketsu)</option>
+                  <option value="습관">습관 (Shitsuke)</option>
+                </select>
+              </div>
+              <div>
+                <label>우선순위</label>
+                <select id="priority">
+                  <option>보통</option>
+                  <option>낮음</option>
+                  <option>높음</option>
+                </select>
+              </div>
+            </div>
+
+            <label>상세 설명</label>
+            <textarea id="detail" placeholder="문제 상황, 개선 아이디어, 기대 효과를 구체적으로 적어주세요" required></textarea>
+
+            <div class="row">
+              <div>
+                <label>마감일</label>
+                <input id="due" type="date" />
+              </div>
+              <div>
+                <label>사진/문서 링크 (선택)</label>
+                <input id="link" type="url" placeholder="예) https://..." />
+              </div>
+            </div>
+
+            <div class="row">
+              <div>
+                <label>담당자 (선택)</label>
+                <input id="assignee" placeholder="담당자 이름" />
+              </div>
+              <div>
+                <label>상태</label>
+                <select id="status">
+                  <option>접수</option>
+                  <option>진행중</option>
+                  <option>완료</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="actions">
+              <button type="submit" class="primary">제출</button>
+              <button type="button" id="resetBtn" class="danger">전체 초기화</button>
+            </div>
+            <p class="footer small">※ 업로드 서버가 없어 파일 자체는 저장하지 않습니다. 필요 시 클라우드 문서/사진 링크를 첨부하세요.</p>
+          </form>
+        </div>
+      </div>
+
+      <!-- Right: List & Controls -->
+      <div class="card">
+        <div class="content">
+          <h2>요청 목록</h2>
+          <div class="toolbar">
+            <input id="search" placeholder="검색: 제목/설명/요청자" />
+            <select id="filterType">
+              <option value="">모든 유형</option>
+              <option>정리</option>
+              <option>정돈</option>
+              <option>청소</option>
+              <option>청결</option>
+              <option>습관</option>
+            </select>
+            <select id="filterStatus">
+              <option value="">모든 상태</option>
+              <option>접수</option>
+              <option>진행중</option>
+              <option>완료</option>
+            </select>
+            <div class="right actions">
+              <button id="exportBtn" class="success">CSV 내보내기</button>
+              <button id="sampleBtn">샘플 3건 채우기</button>
+            </div>
+          </div>
+
+          <div class="kpis" id="kpis"></div>
+
+          <div style="overflow:auto;max-height:460px;border:1px solid var(--border);border-radius:12px">
+            <table id="table">
+              <thead>
+                <tr>
+                  <th class="nowrap">등록일</th>
+                  <th>제목</th>
+                  <th>유형</th>
+                  <th>우선</th>
+                  <th>요청자</th>
+                  <th>담당</th>
+                  <th class="nowrap">마감</th>
+                  <th>상태</th>
+                  <th>링크</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <p class="footer">데이터 위치: 이 브라우저의 LocalStorage (<span class="muted">동일 브라우저/PC에서만 보임</span>)</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const KEY = 'fiveSRequests.v1';
+  const $ = (id)=>document.getElementById(id);
+
+  function load(){
+    try{ return JSON.parse(localStorage.getItem(KEY)) || [] }catch(e){ return [] }
+  }
+  function save(list){ localStorage.setItem(KEY, JSON.stringify(list)); }
+
+  function formData(){
+    return {
+      id: crypto.randomUUID(),
+      createdAt: new Date().toISOString(),
+      title: $('title').value.trim(),
+      requester: $('requester').value.trim(),
+      area: $('area').value.trim(),
+      type: $('type').value,
+      priority: $('priority').value,
+      detail: $('detail').value.trim(),
+      due: $('due').value,
+      link: $('link').value.trim(),
+      assignee: $('assignee').value.trim(),
+      status: $('status').value,
+    }
+  }
+
+  function clearForm(){
+    ['title','requester','area','detail','due','link','assignee'].forEach(id=>$(id).value='');
+    $('type').value='정리';
+    $('priority').value='보통';
+    $('status').value='접수';
+  }
+
+  function renderKPIs(list){
+    const total = list.length;
+    const byStatus = groupCount(list, 'status');
+    const byType = groupCount(list, 'type');
+    $('kpis').innerHTML = `
+      <span class="badge">총 ${total}건</span>
+      <span class="badge">접수 ${byStatus['접수']||0}</span>
+      <span class="badge">진행중 ${byStatus['진행중']||0}</span>
+      <span class="badge">완료 ${byStatus['완료']||0}</span>
+      <span class="badge">정리 ${byType['정리']||0}</span>
+      <span class="badge">정돈 ${byType['정돈']||0}</span>
+      <span class="badge">청소 ${byType['청소']||0}</span>
+      <span class="badge">청결 ${byType['청결']||0}</span>
+      <span class="badge">습관 ${byType['습관']||0}</span>`;
+  }
+
+  function groupCount(list, key){
+    return list.reduce((acc,x)=>{acc[x[key]]=(acc[x[key]]||0)+1;return acc},{});
+  }
+
+  function pill(priority){
+    const cls = priority==='높음'?'high':priority==='보통'?'med':'low';
+    return `<span class="pill ${cls}">${priority}</span>`
+  }
+
+  function renderTable(){
+    const q = $('search').value.toLowerCase();
+    const fType = $('filterType').value;
+    const fStatus = $('filterStatus').value;
+    const list = load();
+    const filtered = list.filter(x=>{
+      const hit = [x.title,x.detail,x.requester,x.area].join(' ').toLowerCase().includes(q);
+      const tOk = !fType || x.type===fType;
+      const sOk = !fStatus || x.status===fStatus;
+      return hit && tOk && sOk;
+    }).sort((a,b)=> new Date(b.createdAt)-new Date(a.createdAt));
+
+    renderKPIs(filtered);
+
+    const tbody = document.querySelector('#table tbody');
+    tbody.innerHTML = filtered.map(x=>`
+      <tr>
+        <td class="small nowrap" title="${x.createdAt}">${new Date(x.createdAt).toLocaleDateString()}</td>
+        <td>
+          <div style="font-weight:600">${escapeHTML(x.title)}</div>
+          <div class="small muted">${escapeHTML(x.detail)}</div>
+        </td>
+        <td>${x.type}</td>
+        <td>${pill(x.priority)}</td>
+        <td>${escapeHTML(x.requester)}</td>
+        <td>
+          <input data-id="${x.id}" data-field="assignee" value="${escapeAttr(x.assignee)}" class="small" style="width:120px" />
+        </td>
+        <td class="small nowrap">${x.due||'-'}</td>
+        <td>
+          <select data-id="${x.id}" data-field="status" class="small">
+            ${['접수','진행중','완료'].map(s=>`<option ${s===x.status?'selected':''}>${s}</option>`).join('')}
+          </select>
+        </td>
+        <td>${x.link?`<a class="link small" href="${escapeAttr(x.link)}" target="_blank">열기</a>`:'-'}</td>
+      </tr>
+    `).join('');
+
+    // bind inline editors
+    tbody.querySelectorAll('input[data-id], select[data-id]').forEach(el=>{
+      el.addEventListener('change', (e)=>{
+        const id = el.getAttribute('data-id');
+        const field = el.getAttribute('data-field');
+        const value = el.value;
+        const list = load();
+        const idx = list.findIndex(z=>z.id===id);
+        if(idx>-1){ list[idx][field]=value; save(list); renderTable(); }
+      })
+    })
+  }
+
+  function escapeHTML(s=''){ return s.replace(/[&<>\"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])) }
+  function escapeAttr(s=''){ return s.replace(/[\"']/g, m=>({"\"":"&quot;","'":"&#39;"}[m])) }
+
+  function toCSV(rows){
+    const header = Object.keys(rows[0]||{id:'',createdAt:'',title:'',requester:'',area:'',type:'',priority:'',detail:'',due:'',link:'',assignee:'',status:''});
+    const esc = (v)=>`"${String(v??'').replace(/"/g,'""')}"`;
+    return [header.map(esc).join(','), ...rows.map(r=>header.map(k=>esc(r[k])).join(','))].join('\n');
+  }
+
+  function download(filename, text){
+    const blob = new Blob([text], {type:'text/csv;charset=utf-8;'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href=url; a.download=filename; a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function seedSamples(){
+    if(load().length>0) return;
+    const now = new Date();
+    const addDays = (d)=>{ const t=new Date(now); t.setDate(t.getDate()+d); return t.toISOString().slice(0,10)}
+    const samples=[
+      {title:'피킹 존 라벨 재정렬', requester:'김민수', area:'DC1-피킹', type:'정돈', priority:'보통', detail:'라벨 순서가 동선과 반대로 되어 있어 동선 최적화 필요', due:addDays(7), link:'', assignee:'', status:'접수'},
+      {title:'폐지 박스 과적 방지', requester:'박지연', area:'패킹', type:'습관', priority:'낮음', detail:'폐지 박스가 과적되어 통로를 막음. 박스 교체 기준 마련', due:'', link:'', assignee:'', status:'진행중'},
+      {title:'장비 청소 주기 표준화', requester:'이준호', area:'리시빙', type:'청결', priority:'높음', detail:'프린터/스캐너 청소 주기가 없어 불량률 증가', due:addDays(3), link:'https://example.com/spec', assignee:'', status:'접수'},
+    ];
+    const list = samples.map(s=>({id:crypto.randomUUID(),createdAt:new Date().toISOString(),...s}));
+    save(list);
+  }
+
+  // Event bindings
+  window.addEventListener('DOMContentLoaded', ()=>{
+    seedSamples();
+    renderTable();
+
+    $('requestForm').addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const data = formData();
+      if(!data.title || !data.requester || !data.detail){
+        alert('제목/요청자/상세 설명은 필수입니다.'); return;
+      }
+      const list = load();
+      list.push(data); save(list);
+      clearForm(); renderTable();
+    });
+
+    $('search').addEventListener('input', renderTable);
+    $('filterType').addEventListener('change', renderTable);
+    $('filterStatus').addEventListener('change', renderTable);
+
+    $('exportBtn').addEventListener('click', ()=>{
+      const list = load();
+      if(list.length===0){ alert('내보낼 데이터가 없습니다.'); return; }
+      download(`5S-requests-${new Date().toISOString().slice(0,10)}.csv`, toCSV(list));
+    });
+
+    $('resetBtn').addEventListener('click', ()=>{
+      if(confirm('모든 데이터를 삭제하고 초기화할까요? 이 작업은 되돌릴 수 없습니다.')){
+        localStorage.removeItem(KEY); renderTable();
+      }
+    });
+
+    $('sampleBtn').addEventListener('click', ()=>{ if(load().length===0){ seedSamples(); renderTable(); } });
+  });
+</script>
+</body>
+</html>
